@@ -16,9 +16,9 @@
           <div class="connect-btn" v-if="showConnect" @click="connectMetamask">{{ $t("tips.tips12") }}</div>
           <div class="sign-btn" v-else-if="!showConnect && showSign" @click="derivedAddress">{{ $t("tips.tips11") }}</div>
         </div>
-<!--        <keep-alive>-->
-          <router-view v-else />
-<!--        </keep-alive>-->
+        <keep-alive include="swap" v-else>
+          <router-view />
+        </keep-alive>
       </HeaderBar>
       <template v-else>
         <div class="tab-cont d-flex align-items-center space-between font-bold size-36"
@@ -474,9 +474,14 @@ export default {
 
 <style scoped lang="scss">
 .main-cont {
+  //width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
   background-color: #FFFFFF;
   color: #333333;
   font-weight: 400;
+  border: 1px solid #ebf0f3;
+  box-shadow: 0 3px 29px 0 rgba(178, 199, 217, 29%);
 }
 .tab-cont {
   --top: 40px;

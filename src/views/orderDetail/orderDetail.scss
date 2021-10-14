@@ -18,9 +18,11 @@
   height: 120px;
 }
 .order-cont {
+  position: relative;
   height: 1193px;
-  width: calc(100vw - 70px);
-  margin: 60px auto;
+  //width: calc(100vw - 70px);
+  max-width: 660px;
+  margin: 55px auto;
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   position: relative;
@@ -83,6 +85,13 @@
     //  width: 100px;
     //}
   }
+  .status-cont {
+    position: absolute;
+    top: 57px;
+    left: 50%;
+    width: 100%;
+    transform: translateX(-50%);
+  }
   .order-info {
     padding: 0 40px;
     font-size: 36px;
@@ -106,7 +115,7 @@
     }
   }
   .dash_cont {
-    width: calc(100vw - 146px);
+    width: calc(800px - 146px - 70px);
     margin: 85px auto;
     height: 2px;
     border-bottom: 2px dashed #E9EBF3;
@@ -148,5 +157,5 @@
   color: #18CCB1;
 }
 .pt-57 {
-  padding-top: 57px;
+  padding-top: 87px;
 }
