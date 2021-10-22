@@ -1,6 +1,4 @@
 .header-cont {
-  max-width: 740px;
-  margin: 0 auto;
   z-index: 10;
   position: fixed;
   left: 0;
@@ -12,6 +10,7 @@
   background-color: #FFFFFF;
   justify-content: space-between;
   .logo-cont {
+    //height: 60px;
     height: 68.3px;
     width: 90px;
     //border-radius: 50%;
@@ -81,6 +80,11 @@
 .main-cont {
   height: calc(100vh - 130px);
   background-color: #F9FAFC;
+}
+@media screen and (min-width: 1000px) {
+  .main-cont {
+    height: 100%;
+  }
 }
 .customer-p {
   padding: 40px 40px 0px 40px;
@@ -194,4 +198,10 @@
   width: 2px;
   margin: 0 20px;
   background-color: #C3C6CF;
+}
+@media screen and (min-width: 1000px) {
+  .header-cont {
+    max-width: 740px;
+    margin: 0 auto;
+  }
 }

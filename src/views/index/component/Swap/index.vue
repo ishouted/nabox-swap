@@ -82,7 +82,14 @@
       </template>
       <template>
         <div class="d-flex space-between size-28 mt-3">
-          <span class="text-90">{{ $t("swap.swap6") }}</span>
+          <div class="d-flex align-items-center">
+            <span class="text-90">{{ $t("swap.swap6") }}</span>
+            <el-tooltip :manual="false" class="tooltip-item ml-1" effect="dark" :content="$t('swap.swap31')" placement="top">
+              <span class="info-icon">
+                <img src="@/assets/image/info.png"/>
+              </span>
+            </el-tooltip>
+          </div>
           <span class="text-3a" v-if="currentPlatform && currentPlatform.fee">
             <span v-if="!!Number(transferFee)">{{ transferFee | numberFormat }}{{ chooseFromAsset && chooseFromAsset.symbol }}</span> {{ !!Number(transferFee) && '+' || '' }} {{ currentPlatform.fee }}{{currentPlatform && currentPlatform.platform === 'NaboxPool' && (chooseFromAsset && chooseFromAsset.symbol) || (chooseToAsset && chooseToAsset.symbol)}}</span>
           <span class="text-3a" v-else>--</span>
@@ -835,7 +842,7 @@ export default {
             platform: item,
             isBest: true,
             fee: this.withdrawFee,
-            minReceive: Minus(Times(this.fromAmount, this.swapRate), this.withdrawFee),
+            minReceive: this.numberFormat(tofix(Minus(Times(this.fromAmount, this.swapRate), this.withdrawFee), 6, -1)),
             swapRate: this.swapRate,
             isChoose: true
           }));
@@ -957,7 +964,7 @@ export default {
     checkAmount() {
       if (!this.min || !this.max) return;
       let msg = "";
-      if (this.chooseFromAsset && Minus(Plus(this.fromAmount, this.transferFee), this.available || 0) > 0) {
+      if (this.chooseFromAsset && Minus(Plus(this.fromAmount, this.transferFee || 0), this.available || 0) > 0) {
         msg = `${this.chooseFromAsset.symbol}${this.$t("tips.tips9")}`;
       } else if (Minus(Times(this.fromAmount, this.swapRate), this.withdrawFee) < 0) {
         msg = `${this.$t('swap.swap29')}${this.numberFormat(this.formatFloat(Division(this.withdrawFee, this.swapRate), 2), 2)}${this.chooseFromAsset.symbol}${this.$t('swap.swap30')}`;

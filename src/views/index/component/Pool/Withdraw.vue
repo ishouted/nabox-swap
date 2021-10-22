@@ -26,7 +26,10 @@
       <div class="size-28 text-90">{{ $t("pool.join1") }}</div>
       <div class="d-flex align-items-center space-between mt-3">
         <div class="d-flex align-items-center cursor-pointer">
-          <span class="font-bold size-30">{{ currentWithdrawAssetInfo && currentWithdrawAssetInfo.symbol || "USDT" }}</span>
+          <div class="d-flex align-items-center ml-14 direction-column">
+            <span class="font-bold size-30">{{ currentWithdrawAssetInfo && currentWithdrawAssetInfo.symbol || "USDT" }}</span>
+            <span v-if="currentWithdrawAssetInfo" class="sign">{{ (currentWithdrawAssetInfo && currentWithdrawAssetInfo.registerChain) || (currentWithdrawAssetInfo && currentWithdrawAssetInfo.chain) }}</span>
+          </div>
           <div class="ml-2 drop_down">
             <img src="@/assets/image/drop_down.png" alt="">
           </div>
@@ -56,7 +59,7 @@
     <div class="d-flex mt-4 size-28 align-items-center space-between">
       <span class="text-90 w-85">{{ $t("pool.join3") }}</span>
       <span class="text-3a d-flex direction-column text-right">
-        <span>${{ addedLiquidityInfo && addedLiquidityInfo.balance | numFormat }}({{ poolRate | rateFormat }})</span>
+        <span>${{ addedBalance || 0 }}({{ poolRate | rateFormat }})</span>
 <!--        <span>{{ liquidityInfo && liquidityInfo.symbol || "USDTN" }}  |  {{ poolRate | rateFormat }}</span>-->
       </span>
     </div>
@@ -103,7 +106,8 @@ export default {
       amountMsg: '', // 金额错误提示
       withDrawLoading: false,
       availableLoading: false,
-      lpAssetsList: []
+      lpAssetsList: [],
+      addedBalance: ''
     }
   },
   created() {
@@ -246,9 +250,9 @@ export default {
       });
       if (res.code === 1000) {
         this.addedLiquidityInfo = res.data;
-        this.addedLiquidityInfo["balance"] = this.numberFormat(divisionDecimals(res.data.balance, res.data.decimals));
+        this.addedLiquidityInfo["balance"] = this.numberFormat(tofix(divisionDecimals(res.data.balance, res.data.decimals), 6, -1));
+        this.addedBalance = this.numberFormat(tofix(res.data.balance, 4, -1), 4);
         this.poolRate = this.liquidityInfo.total && tofix(Times(Division(this.addedLiquidityInfo["balance"], this.liquidityInfo.total), 100), 2, -1) || 0;
-        // console.log(this.poolRate);
       }
       this.availableLoading = false;
     },
@@ -430,6 +434,16 @@ export default {
     height: 100%;
     width: 100%;
   }
+}
+.sign {
+  margin-top: 5px;
+  padding: 5px 12px;
+  background: #E7F2F0;
+  border-radius: 4px;
+  text-align: center;
+  line-height: 20px;
+  font-size: 12px;
+  color: #6EB6A9;
 }
 .rotate_x {
   transform: rotateX(180deg);

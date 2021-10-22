@@ -1,5 +1,5 @@
 <template>
-  <div class="mask-cont"  @touchmove.prevent :class="{'show_modal': showModal}">
+  <div class="mask-cont" :class="{'show_modal': showModal}">
     <div class="modal-cont" :class="{'show_modal-cont': showModal}">
       <div class="header-cont size-36 font-bold mt-2">
           {{ $t('modal.modal1') }}
@@ -21,9 +21,9 @@
                 <span class="coin-icon">
                   <img :src="getPicture(item.symbol)" @error="pictureError">
                 </span>
-                <span class="d-flex direction-column space-between h-40">
+                <span class="d-flex direction-column h-40" :class="type==='assets' && 'space-between' || 'justify-content-center'">
                   <span class="text-3a font-bold">{{ item.symbol }}</span>
-                  <span class="sign size-16">{{ item.registerChain }}</span>
+                  <span class="sign size-16" v-if="type==='assets'">{{ item.registerChain }}</span>
                 </span>
               </div>
               <span class="text-3a font-bold size-30">{{ (item.userBalance || 0) | numberFormat }}</span>
@@ -48,6 +48,10 @@ export default {
       type: Boolean,
       default: false
     },
+    type: {
+      type: String,
+      default: 'assets'
+    }
   },
   watch: {
     assetList: {
@@ -93,6 +97,7 @@ export default {
       this.$emit('update:showModal', false)
     },
     selectAsset(asset) {
+      this.searchVal = '';
       this.$emit('selectAsset', asset)
     }
   }
