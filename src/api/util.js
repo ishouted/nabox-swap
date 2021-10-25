@@ -557,7 +557,7 @@ export const hashLinkList = {
   Ethereum: isBeta ? 'https://ropsten.etherscan.io/tx/' : 'https://etherscan.io/tx/',
   BSC: isBeta ? 'https://testnet.bscscan.com/tx/' : 'https://bscscan.com/tx/',
   Heco: isBeta ? 'https://testnet.hecoinfo.com/tx/' : 'https://hecoinfo.com/tx/',
-  OKEcChain: isBeta ? "https://www.oklink.com/okexchain-test/tx/" : 'https://www.oklink.com/okexchain/tx/',
+  OKExChain: isBeta ? "https://www.oklink.com/okexchain-test/tx/" : 'https://www.oklink.com/okexchain/tx/',
   NULS: isBeta ? 'http://beta.nulscan.io/transaction/info?hash=' : 'https://nulscan.io/transaction/info?hash=',
   NERVE: isBeta ? 'http://beta.scan.nerve.network/transaction/info?hash=' : 'https://scan.nerve.network/transaction/info?hash='
 }
@@ -569,7 +569,7 @@ export const addressNetworkOrigin = {
   BSC: isBeta ? 'https://testnet.bscscan.com/address/' : 'https://bscscan.com/address/',
   // HTOrigin: isBeta ? 'https://scan-testnet.hecochain.com' : 'https://scan.hecochain.com'
   Heco: isBeta ? 'https://testnet.hecoinfo.com/address/' : 'https://hecoinfo.com/address/',
-  OKExChain: isBeta ? "https://www.oklink.com/okexchain-testt/address/" : "https://www.oklink.com/okexchaint/address/"
+  OKExChain: isBeta ? "https://www.oklink.com/okexchain-test/address/" : "https://www.oklink.com/okexchaint/address/"
 }
 
 export function getLogoSrc(symbol) {
@@ -577,13 +577,92 @@ export function getLogoSrc(symbol) {
 }
 
 
+// export const supportChainList = [
+//   { label: "NERVE", value: "NERVE", symbol: "NVT", SwftChain: "NERVE", chainId: MAIN_INFO.chainId, assetId: MAIN_INFO.assetId },
+//   { label: "NULS", value: "NULS", symbol:"NULS", SwftChain: "NULS", chainId: NULS_INFO.chainId, assetId: NULS_INFO.assetId },
+//   { label: "Ethereum", value: "Ethereum", symbol:"ETH", ropsten: "0x3", SwftChain: "Ethereum", homestead: "0x1", chainId: 101, assetId: 1 },
+//   { label: "BSC", value: "BSC", symbol:"BNB", ropsten: "0x61", homestead: "0x38", SwftChain: "BSC", chainId: 102, assetId: 1, origin: networkOrigin.BSC, rpcUrl: {ropsten: "https://data-seed-prebsc-1-s1.binance.org:8545/", homestead: "https://bsc-dataseed.binance.org/"}},
+//   { label: "Heco", value: "Heco", symbol:"HT", ropsten: "0x100", homestead: "0x80", SwftChain: "Heco", chainId: 103, assetId: 1, origin: networkOrigin.Heco, rpcUrl: {ropsten: "https://http-testnet.hecochain.com",homestead: "https://http-mainnet.hecochain.com"}},
+//   { label: "OKExChain", value: "OKExChain", symbol:"OKT", ropsten: "0x41", homestead: "0x42", SwftChain: "OKExChain", chainId: 104, origin: networkOrigin.OKExChain, assetId: 1, rpcUrl: {ropsten: "https://exchaintestrpc.okex.org",homestead: "https://exchainrpc.okex.org"}}
+// ];
 export const supportChainList = [
-  { label: "NERVE", value: "NERVE", symbol: "NVT", SwftChain: "NERVE", chainId: MAIN_INFO.chainId, assetId: MAIN_INFO.assetId },
-  { label: "NULS", value: "NULS", symbol:"NULS", SwftChain: "NULS", chainId: NULS_INFO.chainId, assetId: NULS_INFO.assetId },
-  { label: "Ethereum", value: "Ethereum", symbol:"ETH", ropsten: "0x3", SwftChain: "Ethereum", homestead: "0x1", chainId: 101, assetId: 1 },
-  { label: "BSC", value: "BSC", symbol:"BNB", ropsten: "0x61", homestead: "0x38", SwftChain: "BSC", chainId: 102, assetId: 1, origin: networkOrigin.BSC, rpcUrl: {ropsten: "https://data-seed-prebsc-1-s1.binance.org:8545/", homestead: "https://bsc-dataseed.binance.org/"}},
-  { label: "Heco", value: "Heco", symbol:"HT", ropsten: "0x100", homestead: "0x80", SwftChain: "Heco", chainId: 103, assetId: 1, origin: networkOrigin.Heco, rpcUrl: {ropsten: "https://http-testnet.hecochain.com",homestead: "https://http-mainnet.hecochain.com"}},
-  { label: "OKExChain", value: "OKExChain", symbol:"OKT", ropsten: "0x41", homestead: "0x42", SwftChain: "OKExChain", chainId: 104, origin: networkOrigin.OKExChain, assetId: 1, rpcUrl: {ropsten: "https://exchaintestrpc.okex.org",homestead: "https://exchainrpc.okex.org"}}
+  {
+    label: "Ethereum",
+    value: "Ethereum",
+    symbol: "ETH",
+    ropsten: "0x3",
+    SwftChain: "Ethereum",
+    homestead: "0x1",
+    chainId: 101,
+    assetId: 1,
+    origin: networkOrigin.Ethereum
+  },
+  {
+    label: "BSC",
+    value: "BSC",
+    symbol: "BNB",
+    ropsten: "0x61",
+    homestead: "0x38",
+    SwftChain: "BSC",
+    chainId: 102,
+    assetId: 1,
+    origin: networkOrigin.BSC,
+    decimals: 18,
+    rpcUrl: {
+      ropsten: "https://data-seed-prebsc-1-s1.binance.org:8545/",
+      homestead: "https://bsc-dataseed.binance.org/"
+    }
+  },
+  {
+    label: "Heco",
+    value: "Heco",
+    symbol: "HT",
+    ropsten: "0x100",
+    homestead: "0x80",
+    SwftChain: "Heco",
+    chainId: 103,
+    assetId: 1,
+    origin: networkOrigin.Heco,
+    decimals: 18,
+    rpcUrl: {
+      ropsten: "https://http-testnet.hecochain.com",
+      homestead: "https://http-mainnet.hecochain.com"
+    }
+  },
+  {
+    label: "OKExChain",
+    value: "OKExChain",
+    symbol: "OKT",
+    ropsten: "0x41",
+    homestead: "0x42",
+    SwftChain: "OKExChain",
+    chainId: 104,
+    assetId: 1,
+    origin: networkOrigin.OKExChain,
+    decimals: 18,
+    rpcUrl: {
+      ropsten: "https://exchaintestrpc.okex.org",
+      homestead: "https://exchainrpc.okex.org"
+    }
+  },
+  {
+    label: "NULS",
+    value: "NULS",
+    symbol: "NULS",
+    SwftChain: "NULS",
+    chainId: NULS_INFO.chainId,
+    assetId: NULS_INFO.assetId,
+    origin: networkOrigin.NULS
+  },
+  {
+    label: "NERVE",
+    value: "NERVE",
+    symbol: "NVT",
+    SwftChain: "NERVE",
+    chainId: MAIN_INFO.chainId,
+    assetId: MAIN_INFO.assetId,
+    origin: networkOrigin.NERVE
+  }
 ];
 
 export function debounce(fn, delay) {
