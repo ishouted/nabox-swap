@@ -19,7 +19,7 @@ const en = {
         tips17: "The available balance of the selected asset is insufficient",
         tips18: "The staking amount can't be 0",
         tips19: "Failed to synchronize",
-        tips20: "Insufficient balance",
+        tips20: " Insufficient balance",
         tips21: "Please select the platform address",
         tips22: "Failed to generate L2 address",
         tips23: "Receiving assets does not support cross-chain exchange",
@@ -56,7 +56,8 @@ const en = {
         swap28: "ID",
         swap29: "You need at least ",
         swap30: " as a handling fee",
-        swap31: "【The fee is 0.02% of the transaction amount, it will be charged as 1U if less than 1U】"
+        swap31: "【The fee is 0.02% of the transaction amount, it will be charged as 1U if less than 1U】",
+        swap32: "Expected"
     },
     transfer: {
         transfer1: 'From',
@@ -86,7 +87,7 @@ const en = {
         vaults1:'Total ',
         vaults2:'in progress',
         vaults3:'Ended',
-        vaults4:'Stake',
+        vaults4:'Stake ',
         vaults5:'Available',
         vaults6: "Max",
         vaults7: "Cancel",
@@ -95,8 +96,8 @@ const en = {
         over1: "APR",
         over2: "Earned",
         over3: "Receive",
-        over4: "Amount",
-        over5: "Get",
+        over4: " Amount",
+        over5: "Get ",
         over6: "Asset authorization"
     },
     modal: {
