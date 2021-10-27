@@ -85,7 +85,7 @@ const en = {
     },
     vaults: {
         vaults1:'Total ',
-        vaults2:'in progress',
+        vaults2:'Live',
         vaults3:'Ended',
         vaults4:'Stake ',
         vaults5:'Available',
@@ -95,7 +95,7 @@ const en = {
         vaults9: "Enter the staking amount",
         over1: "APR",
         over2: "Earned",
-        over3: "Receive",
+        over3: "Claim",
         over4: " Amount",
         over5: "Get ",
         over6: "Asset authorization"
