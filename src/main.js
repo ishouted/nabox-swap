@@ -13,6 +13,7 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import globalMixin from './mixin';
 import './plugins/vant';
+import { Loading } from 'vant';
 
 const development = process.env.NODE_ENV === "development"
 Vue.config.devtools = development;
@@ -26,6 +27,7 @@ Vue.config.productionTip = false; // 开发环境提示
 Vue.mixin(globalMixin);
 Vue.use(VueI18n);
 Vue.use(ElementUI);
+Vue.use(Loading);
 // window.localStorage.clear();
 let tempData, locale;
 if (typeof window._naboxAccount === 'string') {
@@ -58,6 +60,7 @@ async function getConfig(network) {
             res.data.map(v => {
                 const mainInfo = v.mainAsset;
                 config[v.chain] = {
+                    chain: v.chain,
                     chainId: mainInfo ? mainInfo.chainId : "",
                     assetId: mainInfo ? mainInfo.assetId : "",
                     prefix: v.prefix,
@@ -65,9 +68,38 @@ async function getConfig(network) {
                     decimals: mainInfo ? mainInfo.decimals : "",
                     assets: v.assets,
                     config: v.configs,
-                    apiUrl: v.apiUrl
+                    apiUrl: v.apiUrl,
+                    chainType: v.chainType
                 }
             });
+            // chainType: 2 以太系
+            const supportChainList = res.data.map(item => {
+                if (item.chainType === 1) {
+                    return {
+                        ...item,
+                        label: item.chain,
+                        value: item.chain,
+                        SwftChain: item.chain,
+                        chainId: item.mainAsset.chainId || "",
+                        assetId: item.mainAsset.assetId || "",
+                        decimals: item.mainAsset.decimals || "",
+                    };
+                } else if (item.chainType === 2) {
+                    return {
+                        label: item.chain,
+                        value: item.chain,
+                        symbol: item.mainAsset.symbol || "",
+                        ropsten: `0x${Number(item.nativeId).toString(16)}`,
+                        SwftChain: item.chain,
+                        homestead: `0x${Number(item.nativeId).toString(16)}`,
+                        chainId: item.mainAsset.chainId || "",
+                        assetId: item.mainAsset.assetId || "",
+                        decimals: item.mainAsset.decimals || "",
+                    }
+                }
+            });
+            // console.log(supportChainList, 'supportChainList')
+            sessionStorage.setItem("supportChainList", JSON.stringify(supportChainList));
         }
         sessionStorage.setItem("config", JSON.stringify(config));
     } catch (e) {
