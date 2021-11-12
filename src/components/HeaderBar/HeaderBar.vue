@@ -11,9 +11,9 @@
             <span class="chain-icon">
               <img :src="getPicture(currentChain)" @error="pictureError" alt="">
             </span>
-<!--            <div class="icon-drop ml-2">-->
-<!--              <img src="../../assets/image/drop_down_active.png" alt="">-->
-<!--            </div>-->
+            <div class="icon-drop ml-2">
+              <img src="../../assets/image/drop_down_active.png" alt="">
+            </div>
           </div>
           <div class="space-cont"/>
           <div class="d-flex" @click="addressClick">
@@ -22,15 +22,15 @@
               <img src="@/assets/image/loading.svg" alt="">
             </span>
           </div>
-<!--          <div class="network-list size-28 d-flex direction-column" v-if="showDropList">-->
-<!--            <span class="mt-2 cursor-pointer"-->
-<!--                  v-for="(item, index) in l1ChainList"-->
-<!--                  @click="chainClick(item)"-->
-<!--                  :class="{'active_chain': item.chainName === currentChain}"-->
-<!--                  :key="index">-->
-<!--              {{ item.chainName }}-->
-<!--            </span>-->
-<!--          </div>-->
+          <div class="network-list size-28 d-flex direction-column" v-if="showDropList">
+            <span class="mt-2 cursor-pointer"
+                  v-for="(item, index) in l1ChainList"
+                  @click="chainClick(item)"
+                  :class="{'active_chain': item.chainName === currentChain}"
+                  :key="index">
+              {{ item.chainName }}
+            </span>
+          </div>
         </div>
         <template>
           <div class="header-icon_position" v-if="!address"/>
@@ -110,18 +110,18 @@
                   </template>
                   <span>{{ item.createTime }}</span>
                   <span class="status-icon">
-                    <!--L2网络订单-->
-                    <i class="el-icon-loading" style="color: #6EB6A9" v-if="orderType === 2 && item.status === 0"/>
-                    <i class="el-icon-success" style="color: #6EB6A9" v-if="orderType === 2 && item.status === 1"/>
-                    <i class="el-icon-error" style="color: #eb7d62" v-if="orderType === 2 && item.status === -1"/>
-                    <!--L1网络订单-->
-                    <i class="el-icon-loading" style="color: #6EB6A9" v-if="orderType === 1 && item.status === 0"/>
-                    <i class="el-icon-success" style="color: #6EB6A9" v-if="orderType === 1 && item.status === 1"/>
-                    <i class="el-icon-error" style="color: #eb7d62" v-if="orderType === 1 && item.status === -1"/>
                     <!--swap订单-->
                     <i class="el-icon-loading" style="color: #6EB6A9" v-if="orderType === 3 && item.status !== 5 && item.status !== 4"/>
                     <i class="el-icon-success" style="color: #6EB6A9" v-else-if="orderType === 3 && item.status === 4"/>
                     <i class="el-icon-error" style="color: #eb7d62" v-else-if="orderType === 3 && item.status === 5"/>
+                    <!--L1网络订单-->
+                    <i class="el-icon-loading" style="color: #6EB6A9" v-if="orderType === 1 && item.status === 0"/>
+                    <i class="el-icon-success" style="color: #6EB6A9" v-if="orderType === 1 && item.status === 1"/>
+                    <i class="el-icon-error" style="color: #eb7d62" v-if="orderType === 1 && item.status === -1"/>
+                    <!--L2网络订单-->
+                    <i class="el-icon-loading" style="color: #6EB6A9" v-if="orderType === 2 && item.status === 0"/>
+                    <i class="el-icon-success" style="color: #6EB6A9" v-if="orderType === 2 && item.status === 1"/>
+                    <i class="el-icon-error" style="color: #eb7d62" v-if="orderType === 2 && item.status === -1"/>
                 </span>
                 </div>
                 <div class="text-center size-28 mb-3" v-if="orderList.length === 0">No Data</div>
@@ -138,31 +138,14 @@
 import Pop from "../Pop/Pop";
 import PopUp from "../PopUp/PopUp";
 import {ETHNET} from "@/config";
-import {addressNetworkOrigin, copys, divisionDecimals, hashLinkList, supportChainList, tofix} from "../../api/util";
+import {copys, divisionDecimals, supportChainList, tofix} from "../../api/util";
 
-const lang = localStorage.getItem("locale") || 'cn'
-
-const linkList = {
-  Ethereum: 'https://etherscan.io/tx/',
-  BSC: 'https://bscscan.com/tx/',
-  Heco: 'https://hecoinfo.com/tx/',
-  OKEcChain: 'https://www.oklink.com/okexchain/tx/',
-  NULS: 'https://nulscan.io/transaction/info?hash=',
-  Nerve: 'https://scan.nerve.network/transaction/info?hash='
-}
+const lang = localStorage.getItem("locale") || 'cn';
 
 export default {
   name: "HeaderBar",
   props: {
-    // showConnect: {
-    //   type: Boolean,
-    //   default: false
-    // },
     address: String,
-    // currentAccount: {
-    //   type: Object,
-    //   default: () => null
-    // },
     headerColor: {
       type: String,
       default: "#ffffff"
@@ -174,7 +157,7 @@ export default {
       showPop: false,
       showAccount: false,
       supportChainList: supportChainList,
-      currentChain: this.$store.state.network, // 当前所选则的链
+      currentChain: this.$store.state.network, // 当前所选择的链
       showDropList: false, // 下拉菜单
       orderList: [], // 订单列表
       orderType: 3, // 当前选择的订单类型
@@ -184,12 +167,12 @@ export default {
       orderLoading: false,
       lang: '',
       showLoading: false,
-      statusTimer: null
+      statusTimer: null,
+      isSwap: false
     }
   },
   created() {
     if (this.statusTimer) clearInterval(this.statusTimer);
-    this.currentAccount && this.initAssetInfo();
     this.fromAddress && this.getOrderStatus(this.fromAddress);
     this.statusTimer = setInterval(() => {
       this.fromAddress && this.getOrderStatus(this.fromAddress);
@@ -208,10 +191,16 @@ export default {
       immediate: true,
       deep: true
     },
+    "$route.fullPath": {
+      handler(val) {
+        this.isSwap = window.location.hash.indexOf('swap') > -1;
+      },
+      immediate: true,
+      deep: true
+    },
     currentChain(val) {
       if (val) {
         this.$store.commit("changeNetwork", val);
-        this.initAssetInfo();
       }
     },
     orderType(val) {
@@ -229,7 +218,6 @@ export default {
       deep: true,
       handler(val) {
         if (val) {
-          // this.fromAddress = val;
           this.$store.commit('changeFromAddress', val);
           this.initAssetInfo();
         }
@@ -237,22 +225,18 @@ export default {
     }
   },
   computed: {
-    isSwap() {
-      return window.location.hash.indexOf('swap') > -1;
-    },
     isMobile() {
-      return /Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent);
-    },
-    isNerveTo() {
-      return window.location.hash.indexOf('transfer') > -1;
+      return /Android|webOS|iPhone|iPad|BlackBerry/i.test(navigator.userAgent);
     },
     l1ChainList() {
-      const tempList = supportChainList.filter(chain => chain.label !== "NULS" && chain.label !== "NERVE");
+      const tempSupportChainList = supportChainList.length === 0 && sessionStorage.getItem('supportChainList') && JSON.parse(sessionStorage.getItem('supportChainList')) || supportChainList;
+      const tempList = tempSupportChainList.filter(chain => chain.label !== "NULS" && chain.label !== "NERVE");
       // const tempList = supportChainList;
       console.log(tempList, 'tempList')
       return tempList.map(chain => ({
         chainId: chain[ETHNET],
-        rpcUrls: chain.rpcUrl ? [chain.rpcUrl[ETHNET]] : [],
+        // rpcUrls: chain.rpcUrl ? [chain.rpcUrl[ETHNET]] : [],
+        rpcUrls: chain.rpcUrl ? [chain.rpcUrl] : [],
         chainName: chain.value,
         nativeCurrency: {
           name: chain.value,
@@ -261,11 +245,27 @@ export default {
         },
         blockExplorerUrls: [chain.origin]
       }));
+    },
+    hashLinkList() {
+      const hashLinkList = {};
+      const tempSupportChainList = supportChainList.length === 0 && sessionStorage.getItem('supportChainList') && JSON.parse(sessionStorage.getItem('supportChainList')) || supportChainList;
+      tempSupportChainList.forEach(item => {
+        hashLinkList[item.chain] = item.hashLink;
+      });
+      return hashLinkList;
+    },
+    addressNetworkOrigin() {
+      const addressNetworkOrigin = {};
+      const tempSupportChainList = supportChainList.length === 0 && sessionStorage.getItem('supportChainList') && JSON.parse(sessionStorage.getItem('supportChainList')) || supportChainList;
+      tempSupportChainList.forEach(chain => {
+        addressNetworkOrigin[chain.chain] = chain.addressLink;
+      });
+      return addressNetworkOrigin;
     }
   },
   methods: {
     toBrowser(network, address) {
-      this.isMobile ? window.location.href = addressNetworkOrigin[network || this.fromNetwork] + address || this.address : window.open(addressNetworkOrigin[network || this.fromNetwork] + address || this.address);
+      this.isMobile ? window.location.href = this.addressNetworkOrigin[network || this.fromNetwork] + address || this.address : window.open(this.addressNetworkOrigin[network || this.fromNetwork] + address || this.address);
     },
     copy(val) {
       if (!val) return;
@@ -274,7 +274,6 @@ export default {
     },
     showDropClick() {
       this.showDropList = !this.showDropList;
-      // console.log(this.showDropList);
     },
     // 断开连接
     disConnect() {
@@ -319,14 +318,13 @@ export default {
           method: "wallet_addEthereumChain",
           params: [chain]
         }).then((res) => {
-          console.log(res, 'res')
           this.currentChain = chain.chainName;
           window.location.reload();
           this.$store.commit('changeNetwork', chain.chainName);
         }).catch(err => {
           console.log(err)
           this.$message({
-            message: err.message,
+            message: err.message || err,
             offset: 30,
             type: "warning"
           })
@@ -344,7 +342,7 @@ export default {
           this.$store.commit('changeNetwork', chain.chainName);
         }).catch(err => {
           this.$message({
-            message: err.message,
+            message: err.message || err,
             offset: 30,
             type: "warning"
           })
@@ -442,7 +440,7 @@ export default {
     linkToUrl(hash, item) {
       if (this.orderType===2 || this.orderType === 1) {
         const chain = this.orderType === 2 ? 'NERVE' : this.currentChain;
-        this.isMobile ? window.location.href = `${hashLinkList[chain]}${hash}` : window.open(`${hashLinkList[chain]}${hash}`);
+        this.isMobile ? window.location.href = `${this.hashLinkList[chain]}${hash}` : window.open(`${this.hashLinkList[chain]}${hash}`);
       } else {
         this.toOrderDetail(item);
       }
@@ -482,7 +480,7 @@ export default {
         data,
       });
       if (res.code === 1000) {
-        res.data.balance = res.data && this.numberFormat(tofix(divisionDecimals(res.data.balance, res.data.decimals), 6 -1), 6, false);
+        res.data.balance = res.data && this.numberFormat(tofix(divisionDecimals(res.data.balance, res.data.decimals), 6, -1), 6, false);
         return res.data;
       }
     },

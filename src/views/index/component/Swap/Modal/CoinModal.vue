@@ -30,19 +30,18 @@
               <div class="d-flex align-items-center space-between pr-4 flex-1" @click="selectCoin(item)">
                 <div class="coin-item">
                   <span class="coin-icon">
-                    <img :src="getPicture(item.symbolImg)" @error="pictureError" alt="">
+                    <img :src="item.icon || getPicture(item.symbol) || pictureError" @error="pictureError" alt="">
                   </span>
                   <span class="text-3a font-500">{{ item.symbol }}</span>
                 </div>
                 <span v-if="item.showBalanceLoading" class="box_loading">
                   <img src="@/assets/image/loading.svg" alt="">
                 </span>
-<!--                <span v-if="item.showBalanceLoading">loading...</span>-->
                 <span v-else class="text-3a font-500 size-30">{{ item.balance | numberFormat }}</span>
               </div>
             </div>
           </div>
-          <div class="text-center size-28 text-90 flex-1 pt-4 h-800" v-else>{{ $t('modal.modal3') }}</div>
+          <div class="text-center size-28 text-90 flex-1 pt-4 h-800" v-else>{{ $t('tips.tips25') }}</div>
         </div>
       </div>
     </div>
@@ -50,9 +49,8 @@
 </template>
 
 <script>
-import {networkToChain, valideNetwork} from "@/views/index/component/Swap";
 import {divisionDecimals} from "@/api/util";
-import {tofix} from "../../../../../api/util";
+import {getCurrentAccount, tofix} from "../../../../../api/util";
 import {ETransfer} from "@/api/api";
 
 export default {
@@ -70,27 +68,30 @@ export default {
       type: Array,
       default: () => []
     },
-    fromChain: {
-      type: String,
-    },
     supportAdvanced: {
       type: Boolean,
       default: false
     },
     fromAsset: {
       type: Object,
-      default: () => null
+      default: () => {}
     },
     toAsset: {
       type: Object,
+      default: () => {}
+    },
+    usdtInfo: {
+      type: Object,
       default: () => null
     },
-    // fromNetwork: String,
-    // fromAddress: String
+    usdtnInfo: {
+      type: Object,
+      default: () => null
+    }
   },
   data() {
     return {
-      picList: ['Ethereum', 'BSC', 'Heco', 'OKExChain'],
+      picList: ['Ethereum', 'BSC', 'Polygon', 'Heco', 'OKExChain', 'NULS', 'NERVE'],
       currentIndex: 0,
       showCoinList: [],
       searchVal: '',
@@ -98,9 +99,6 @@ export default {
       showLoading: false,
       timer: null
     }
-  },
-  created() {
-    // this.modalType == 'send' && this.getCoins(this.fromChain)
   },
   watch: {
     // coinList: {
@@ -161,7 +159,7 @@ export default {
       handler(val) {
         if (val) {
           if (this.modalType === 'receive') {
-            this.currentIndex = this.picList.findIndex(item => this.fromNetwork === item);
+            this.currentIndex = this.picList.findIndex(item => this.fromNetwork === item) === -1 ? 0 : this.picList.findIndex(item => this.fromNetwork === item);
             this.timer = setTimeout(() => {
               this.getCoins(this.picList[this.currentIndex]);
             }, 0);
@@ -198,10 +196,11 @@ export default {
         this.$refs.coinLisCont && this.$refs.coinLisCont.scrollTo(0, 0)
       });
       this.searchVal = '';
-      this.$emit('select', { coin, type: this.modalType });
+      this.$emit('select', { coin, type: this.modalType, network: this.picList[this.currentIndex] });
     },
     // 点击nav
     async navClick(item, i) {
+      if (this.currentIndex === i) return false;
       this.$nextTick(() => {
         this.$refs.coinLisCont && this.$refs.coinLisCont.scrollTo(0, 0)
       });
@@ -225,57 +224,116 @@ export default {
           address: this.fromAddress
         }
       });
+      const supportChainList = JSON.parse(sessionStorage.getItem('supportChainList')) || [];
+      const validNetwork = supportChainList.map(chain => chain.SwftChain);
       if (res.code === 1000) {
-        let coins = [];
-        let tempCoins = [];
-        coins = res.data.filter(v => valideNetwork.indexOf(v.mainNetwork) > -1);
-        coins.map(v => {
-          const chain = networkToChain[v.mainNetwork]
-          v.chain = chain.chain
-          v.balance = this.numberFormat(tofix(divisionDecimals(v.balance, v.decimals), 6, -1), 6)
-          v.symbol = v.coinCode; // .split("(")[0]
-          v.symbolImg = v.coinCode.split("(")[0];
-          v.contractAddress = v.contact;
-          v.showBalanceLoading = true;
-        });
+        let coins = res.data.filter(v => validNetwork.indexOf(v.chain) > -1) || [];
+        let tempCoins = coins.map(v => ({
+          ...v,
+          balance: this.numberFormat(tofix(divisionDecimals(v.balance, v.decimals), 6, -1), 6),
+          symbol: v.swftInfo && v.swftInfo.coinCode || v.symbol,
+          symbolImg: v.swftInfo && v.swftInfo.coinCode.split("(")[0] ||  v.symbol,
+          showBalanceLoading: true,
+          ...v.swftInfo
+        }));
         // 当前选择的资产是否支持跨链
         if (!this.fromAsset && this.modalType === 'recieve') {
           tempCoins = [];
-        } else {
-          tempCoins = [ ...coins ];
         }
         const tempList = tempCoins.length > 0 && tempCoins.sort((a, b) => a.symbol > b.symbol ? 1 : -1) || [];
+        const tempNetwork = this.modalType === 'send' ? this.fromNetwork : this.picList[this.currentIndex];
+        const { chainId: usdtChainId, assetId: usdtAssetId, contractAddress: usdtContractAddress } = this.usdtInfo[this.fromNetwork] || {};
+        const { chainId: usdtnChainId, assetId: usdtnAssetId, contractAddress: usdtnContractAddress } = this.usdtnInfo[this.fromNetwork] || {};
+        const { chainId: fromChainId, assetId: fromAssetId, contractAddress: fromContractAddress } = this.fromAsset || {};
+        const { chainId: toChainId, assetId: toAssetId, contractAddress: toContractAddress } = this.toAsset || {};
+        const currentNetwork = this.picList[this.currentIndex];
         if (this.modalType === "receive" && this.fromAsset) {
-          this.showCoinList = tempList.filter(coin => {
-            if (this.fromAsset && this.fromAsset.contractAddress) {
-              return coin.mainNetwork === this.picList[this.currentIndex] && coin.contractAddress !== this.fromAsset.contractAddress;
-            } else {
-              return coin.mainNetwork === this.picList[this.currentIndex] && (coin.chainId !== this.fromAsset.chainId || coin.assetId !== this.fromAsset.assetId)
-            }
+          const tempCoinList = tempList.filter(item => {
+            return this.fromAsset.noSupportCoin && this.fromAsset.noSupportCoin.indexOf(item.symbol === -1) || true;
           });
+          if (fromChainId === usdtnChainId && (fromContractAddress && usdtnContractAddress && fromContractAddress === usdtnContractAddress || this.fromNetwork === 'NERVE' && fromAssetId === usdtnAssetId)) { // from资产为usdtn
+            if (this.fromNetwork === this.picList[this.currentIndex]) {
+              this.showCoinList = tempCoinList.filter(item => {
+                if (item.contractAddress) {
+                  return this.fromNetwork === this.picList[this.currentIndex] && item.contractAddress === usdtContractAddress
+                } else {
+                  return this.fromNetwork === this.picList[this.currentIndex] && (item.chainId === usdtChainId && item.assetId === usdtAssetId)
+                }
+              });
+            } else {
+              this.showCoinList = []
+            }
+          } else if (fromChainId === usdtChainId && (fromContractAddress && usdtContractAddress && fromContractAddress === usdtContractAddress || this.fromNetwork === 'NERVE' && fromAssetId === usdtAssetId)) { // from资产为usdt
+            if (this.fromNetwork !== this.picList[this.currentIndex]) {
+              this.showCoinList = tempCoinList.filter(coin => {
+                if (coin.contractAddress) {
+                  return (coin.chain === this.picList[this.currentIndex] && coin.contractAddress !== this.fromAsset.contractAddress && coin.contractAddress !== usdtnContractAddress) && coin.symbol !== 'USDTN';
+                } else {
+                  return (coin.chain === this.picList[this.currentIndex] && (coin.chainId !== this.fromAsset.chainId && coin.assetId !== this.fromAsset.assetId) && (coin.chainId !== usdtnChainId && coin.assetId !== usdtnAssetId)) && coin.symbol !== 'USDTN'
+                }
+              });
+            } else {
+              this.showCoinList = tempCoinList.filter(coin => {
+                if (coin.contractAddress) {
+                  return coin.chain === this.picList[this.currentIndex] && coin.contractAddress !== this.fromAsset.contractAddress;
+                } else {
+                  return coin.chain === this.picList[this.currentIndex] && (coin.chainId !== this.fromAsset.chainId || coin.assetId !== this.fromAsset.assetId) && (coin.chainId !== usdtChainId || coin.assetId !== usdtAssetId)
+                }
+              });
+            }
+          } else {
+            // console.log('233333', tempList, currentNetwork)
+            this.showCoinList = tempCoinList.filter(coin => {
+              if (coin.contractAddress) {
+                return coin.chain === currentNetwork && coin.contractAddress !== this.fromAsset.contractAddress && coin.contractAddress !== (this.usdtnInfo[currentNetwork] && this.usdtnInfo[currentNetwork].contractAddress);
+              } else {
+                // console.log('123', coin.chain === currentNetwork, coin.chainId !== this.fromAsset.chainId, coin.assetId !== this.fromAsset.assetId)
+                return coin.chain === currentNetwork  && (coin.chainId !== this.fromAsset.chainId) && coin.symbol !== "USDTN"
+                //  && (coin.chainId !== this.usdtnInfo['NERVE'].chainId && coin.assetId !== this.usdtnInfo['NERVE'].assetId)
+              }
+            });
+          }
         } else if (this.modalType === "send" && this.toAsset) {
           const tempShowCoinList = tempList.filter(coin => {
-            return coin.isSupportAdvanced === 'Y'
+            return coin.isSupportAdvanced === 'Y' && (this.toAsset.noSupportCoin && this.toAsset.noSupportCoin.indexOf(coin.symbol) === -1 || true);
           });
-          this.showCoinList = tempShowCoinList.filter((coin, index) => {
-            if (coin.contractAddress) {
-              return coin.contractAddress !== this.toAsset.contractAddress;
-            } else {
-              return (coin.chainId !== this.toAsset.chainId) && (coin.assetId !== this.toAsset.assetId)
-            }
-          });
-          this.allList = [...this.showCoinList];
+          if (toChainId === usdtnChainId && (toContractAddress && usdtnContractAddress && toContractAddress === usdtnContractAddress || this.fromNetwork === 'NERVE' && toAssetId === usdtnAssetId)) {
+            this.showCoinList = tempShowCoinList.filter(coin => {
+              if (coin.contractAddress) {
+                return this.fromNetwork === this.picList[this.currentIndex] && coin.contractAddress === usdtContractAddress
+              } else {
+                return this.fromNetwork === this.picList[this.currentIndex] && (coin.chain === usdtChainId && coin.assetId === usdtAssetId)
+              }
+            });
+          } else if (toChainId === usdtChainId && (toContractAddress && usdtContractAddress && toContractAddress === usdtContractAddress || this.fromNetwork === 'NERVE' && toAssetId === usdtAssetId)) {
+            this.showCoinList = tempShowCoinList.filter((coin, index) => {
+              if (coin.contractAddress) {
+                return coin.contractAddress !== this.toAsset.contractAddress || coin.contractAddress === usdtContractAddress ;
+              } else {
+                return (coin.chainId === this.toAsset.chainId) && (coin.assetId !== this.toAsset.assetId)
+              }
+            });
+          } else {
+            this.showCoinList = tempShowCoinList.filter(coin => {
+              if (coin.contractAddress) {
+                return coin.contractAddress !== this.toAsset.contractAddress && coin.contractAddress !== usdtnContractAddress;
+              } else {
+                return (coin.chainId !== this.toAsset.chainId) && (coin.assetId !== this.toAsset.assetId) && coin.symbol !== 'USDTN';
+              }
+            });
+          }
         } else {
           if (this.modalType==='send') {
             this.showCoinList = tempList.filter(coin => {
               return coin.isSupportAdvanced === 'Y'
             });
           } else {
-            this.showCoinList = tempList;
+            this.showCoinList = [];
           }
         }
         this.showLoading = false;
         this.allList = [...this.showCoinList];
+        // console.log(this.showCoinList, 'showCoinList')
         for (let i = 0; i < this.allList.length; i++) {
           const asset = this.allList[i];
           if (asset.showBalanceLoading) {
@@ -283,22 +341,17 @@ export default {
             this.allList[i].showBalanceLoading = false;
           }
         }
-        // this.allList = Promise.all(this.showCoinList.map(async (item, index, array) => {
-        //   if (item.showBalanceLoading) {
-        //     this.allList[index].balance = await this.getBalance(item);
-        //     this.allList[index].showBalanceLoading = false;
-        //   }
-        // }));
       } else {
         this.showLoading = false;
       }
     },
     // 获取钱包余额
     async getBalance(asset) {
-      if (this.$store.state.network === "NERVE" || this.$store.state.network === "NULS") {
+      if (asset.chain === "NERVE" || asset.chain === "NULS") {
+        const account = getCurrentAccount(this.fromAddress);
         const params = {
-          chain: this.fromNetwork,
-          address: this.fromAddress,
+          chain: asset.chain,
+          address: account['address'][asset.chain],
           chainId: asset.chainId,
           assetId: asset.assetId,
           contractAddress: asset.contractAddress
@@ -311,7 +364,7 @@ export default {
             ...params,
           },
         });
-        await this.getAssetInfo(params);
+        return await this.getAssetInfo(params);
       } else {
         try {
           const transfer = new ETransfer({
@@ -329,6 +382,21 @@ export default {
         }
       }
     },
+    // nerve nuls链上获取资产信息
+    async getAssetInfo(params) {
+      const res = await this.$request({
+        url: "/wallet/address/asset",
+        data: {
+          refresh: true,
+          ...params,
+        },
+      });
+      if (res.code === 1000) {
+        return divisionDecimals(res.data.balance, res.data.decimals);
+      } else {
+        return 0
+      }
+    },
   },
   mounted() {
     this.$nextTick(() => {
@@ -340,7 +408,7 @@ export default {
 
 <style scoped lang="scss">
 @import "Modal";
-@media screen and (min-width: 1000px) {
-
-}
+//@media screen and (min-width: 1000px) {
+//
+//}
 </style>
